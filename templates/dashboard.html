@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.amcharts.com/lib/4/core.js"></script>
+    <script src="https://cdn.amcharts.com/lib/4/charts.js"></script>
+    <script src="https://cdn.amcharts.com/lib/4/themes/material.js"></script>
+    <script src="https://cdn.amcharts.com/lib/4/lang/de_DE.js"></script>
+    <script src="https://cdn.amcharts.com/lib/4/geodata/germanyLow.js"></script>
+    <script src="https://cdn.amcharts.com/lib/4/fonts/notosans-sc.js"></script>
+    <script src="https://cdn.amcharts.com/lib/4/core.js"></script>
+    <script src="https://cdn.amcharts.com/lib/4/charts.js"></script>
+    <script src="https://cdn.amcharts.com/lib/4/themes/animated.js"></script>
+    <script type="text/javascript" src="https://www.amcharts.com/lib/3/amcharts.js"></script>
+    <script type="text/javascript" src="https://www.amcharts.com/lib/3/xy.js"></script>
+    <script type="text/javascript" src="https://www.amcharts.com/lib/3/themes/light.js"></script>
+</head>
+<body>
+    <script>
+        var data = {{data|safe}};
+        am4core.ready(function(){
+
+        // Themes Begin
+        am4core.useTheme(am4themes_animated);
+
+        var chart = am4core.create("chartdiv", am4charts.XYChart);
+        var chartData = [];
+        for(i = 0; i < Object.keys(data['VOLUME']).length; i++ ) {
+            chartData.push({
+                "x": data['DATES'][i],
+                "y": data['VOLUME'][i],
+                "cat": data['CATEGORY'][i]
+            } )
+        };
+        chart.data = chartData;
+        chart.legend = new am4charts.Legend();
+        chart.legend.position = "right";
+        console.log(chart.data);
+
+        // create axes
+        var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+        categoryAxis.dataFields.category = "x";
+        categoryAxis.renderer.grid.template.location = 0;
+        categoryAxis.renderer.minGridDistance = 30;
+        
+        var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+        // valueAxis.min = 0;
+        valueAxis.renderer.grid.template.opacity = 0;
+        valueAxis.renderer.ticks.template.strokeOpacity = 0.5;
+        valueAxis.renderer.ticks.template.stroke = am4core.color("#495C43");
+        valueAxis.renderer.ticks.template.length = 10;
+        valueAxis.renderer.line.strokeOpacity = 0.5;
+        valueAxis.renderer.baseGrid.disabled = true;
+        valueAxis.renderer.minGridDistance = 40;
+
+        // Create Series
+        function createSeries(field, name){
+            var series = chart.series.push(new am4charts.ColumnSeries());
+            series.dataFields.valueY = field;
+            series.dataFields.categoryX = "x";
+            series.stacked = true;
+            series.name = name;
+
+            series.columns.template.tooltipText = "{categoryX}: [bold]{valueY}[/]";
+            series.columns.template.fillOpacity = .8;
+
+        }
+        createSeries("y",'종목');
+        
+        // createSeries("arm",'팔');
+        // createSeries("push",'밀기');
+        // createSeries("pull",'당기기');
+        // createSeries("legs",'하체');
+        // createSeries("core",'코어');
+
+
+        // var columnTemplate = series.columns.template;
+        // columnTemplate.strokeWidth = 2;
+        // columnTemplate.strokeOpacity = 1;
+       
+        });
+                
+                
+    </script>
+    <div id="chartdiv"></div>
+</body>
+</html>
