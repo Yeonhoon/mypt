@@ -17,74 +17,115 @@
     <script type="text/javascript" src="https://www.amcharts.com/lib/3/amcharts.js"></script>
     <script type="text/javascript" src="https://www.amcharts.com/lib/3/xy.js"></script>
     <script type="text/javascript" src="https://www.amcharts.com/lib/3/themes/light.js"></script>
+    <!-- JQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
     <script>
+        
         var data = {{data|safe}};
+        var record_list = [];
+        
+        var resArr=[];
         am4core.ready(function(){
-
-        // Themes Begin
         am4core.useTheme(am4themes_animated);
-
         var chart = am4core.create("chartdiv", am4charts.XYChart);
-        var chartData = [];
-        for(i = 0; i < Object.keys(data['VOLUME']).length; i++ ) {
-            chartData.push({
-                "x": data['DATES'][i],
-                "y": data['VOLUME'][i],
-                "cat": data['CATEGORY'][i]
-            } )
+        const distinct = (value, index, self) => {
+            return self.indexOf(value) === index;
         };
-        chart.data = chartData;
-        chart.legend = new am4charts.Legend();
-        chart.legend.position = "right";
-        console.log(chart.data);
 
-        // create axes
-        var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
-        categoryAxis.dataFields.category = "x";
-        categoryAxis.renderer.grid.template.location = 0;
-        categoryAxis.renderer.minGridDistance = 30;
-        
-        var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-        // valueAxis.min = 0;
-        valueAxis.renderer.grid.template.opacity = 0;
-        valueAxis.renderer.ticks.template.strokeOpacity = 0.5;
-        valueAxis.renderer.ticks.template.stroke = am4core.color("#495C43");
-        valueAxis.renderer.ticks.template.length = 10;
-        valueAxis.renderer.line.strokeOpacity = 0.5;
-        valueAxis.renderer.baseGrid.disabled = true;
-        valueAxis.renderer.minGridDistance = 40;
-
-        // Create Series
-        function createSeries(field, name){
-            var series = chart.series.push(new am4charts.ColumnSeries());
-            series.dataFields.valueY = field;
-            series.dataFields.categoryX = "x";
-            series.stacked = true;
-            series.name = name;
-
-            series.columns.template.tooltipText = "{categoryX}: [bold]{valueY}[/]";
-            series.columns.template.fillOpacity = .8;
-
+        for(i=0; i<Object.keys(data['WORKOUT_DATE']).length; i++){
+            resArr.push(data.WORKOUT_DATE[i])
         }
-        createSeries("y",'종목');
+
+
+        const distinctDate = resArr.filter(distinct);
         
-        // createSeries("arm",'팔');
-        // createSeries("push",'밀기');
-        // createSeries("pull",'당기기');
-        // createSeries("legs",'하체');
-        // createSeries("core",'코어');
+        
+        for(i=0; i < distinctDate.length; i++) {
+            var new_record = {};
+            for(j=0; j < Object.keys(data['VOLUMNE']).length; j++){
+                new_record['DATE']= distinctDate[i];
+                new_record[data['WORKOUT_CAT3'][j]] = data['VOLUME'][j]
+            };
+            record_list.push(new_record);
+            
+        }
+        chart.data = record_list;
+        console.log(chart.data);
+        // Create axes
+        var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+        categoryAxis.dataFields.category = "DATE";
+        categoryAxis.renderer.grid.template.location = 0;
 
+        var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+        valueAxis.renderer.inside = true;
+        valueAxis.renderer.labels.template.disabled = true;
+        valueAxis.min = 0;
 
-        // var columnTemplate = series.columns.template;
-        // columnTemplate.strokeWidth = 2;
-        // columnTemplate.strokeOpacity = 1;
-       
+        // Create series
+        createSeries = (field, name) => {
+        
+            // Set up series
+            var series = chart.series.push(new am4charts.ColumnSeries());
+            series.name = name;
+            series.dataFields.valueY = field;
+            series.dataFields.categoryX = "DATE";
+            series.sequencedInterpolation = true;
+            
+            // Make it stacked
+            series.stacked = true;
+            
+            // Configure columns
+            series.columns.template.width = am4core.percent(60);
+            series.columns.template.tooltipText = "[bold]{name}[/]\n[font-size:14px]{categoryX}: {valueY}";
+            
+            // Add label
+            var labelBullet = series.bullets.push(new am4charts.LabelBullet());
+            labelBullet.label.text = "{valueY}";
+            labelBullet.locationY = 0.5;
+            labelBullet.label.hideOversized = true;
+            
+            return series;
+        }
+        createSeries("내로우 랫풀다운", "Narrow LatPull");
+        createSeries("바벨로우", "Barbell Row");
+        createSeries("풀업", "Pull ups");
+        createSeries("바이셉 컬", "Bicep Curls");
+
+        // Legend
+        chart.legend = new am4charts.Legend();
         });
                 
                 
     </script>
     <div id="chartdiv"></div>
+        <select id='selection' onchange="selection(this)">
+            <option id='push' value="밀기">밀기</option>
+            <option value="당기기">당기기</option>
+            <option value="하체">하체</option>
+        </select>
+
+    <script>
+        function selection(){
+            const select = $('#selection').val();
+            console.log(select);
+        };
+        $.ajax({
+            url:'/cat1',
+            method:'GET',
+            data:{
+                'WORKOUT_CAT3': select 
+            },
+            success: function(data){
+                location.href='/cat1';
+            }
+
+        });
+
+    </script>
+    <div id='piechart'></div>
+
+
 </body>
 </html>

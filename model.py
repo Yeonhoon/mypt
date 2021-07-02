@@ -1,6 +1,6 @@
 import cx_Oracle as oracle
 orcl_dsn = oracle.makedsn(host='localhost', port=1521, sid='xe') #192.168.2.131
-conn = oracle.connect(dsn = orcl_dsn, user='jyhoon94', password='123456')
+conn = oracle.connect(dsn = orcl_dsn, user='jyh', password='123456')
 
 
 class Record:
@@ -34,12 +34,12 @@ class Record:
         return result
     def save(self, user_id, date, big, middle, small, setNum, weight, repNum, etc):
         cursor = conn.cursor()
-        sql = """insert into workout_diary 
-            (workout_user, 
+        sql = """insert into workout_db 
+            (user_id, 
             workout_date, 
-            workout_big, 
-            workout_middle, 
-            workout_small, 
+            workout_cat1, 
+            workout_cat2, 
+            workout_cat3, 
             workout_setNum, 
             workout_weight, 
             workout_repNum, 
@@ -57,14 +57,14 @@ class Record:
         result = cursor.fetchone()
         return result
     
-    def getData(self, user_id):
+    def getData(self, user_id, workout_cat3):
         cursor = conn.cursor()
-        sql = """select sum(workout_weight * WORKOUT_REPNUM) as volume, workout_date, workout_big as category
-                from workout_diary
-                where workout_user =: user_id
-                group by workout_date, workout_big
+        sql = """select sum(workout_weight * WORKOUT_REPNUM) as volume, to_char(workout_date) as dates, workout_cat1, workout_cat3
+                from workout_db
+                where workout_user =: user_id and workout_cat3 =: workout_cat3
+                group by workout_date, workout_cat1
                 order by workout_date """
-        cursor.execute(sql,(user_id))
+        cursor.execute(sql,(user_id, workout_cat3))
         result = cursor.fetchall()
         return result
         

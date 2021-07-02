@@ -21,7 +21,7 @@ function categoryChange(e){
     }
 }
 function categoryChange2(e){
-    var chest = ['플랫벤치 프레스','인클라인 머신프레스','체스트 플라이','딥스'];
+    var chest = ['플랫벤치 프레스','체스트 프레스','인클라인 머신프레스','체스트 플라이','딥스'];
     var shoulder = ['오버헤드프레스','사레레','후면삼각근'];
     var vertical_pull = ['풀업','랫풀다운','내로우 랫풀다운'];
     var horizontal_pull = ['바벨로우','머신 로우', '데드리프트(등)','케이블 로우'];

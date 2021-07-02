@@ -65,20 +65,35 @@ def save_record():
 @app.route('/dashboard')
 def to_dash():
     conn = model.conn
-    sql = sql = f"""select sum(workout_weight * WORKOUT_REPNUM) as volume, to_char(workout_date) as dates, workout_big as category
-                from workout_diary
-                where workout_user = '{session['user_id']}'
-                group by workout_date, workout_big
-                order by workout_date """
+    # sql = f"""select sum(workout_weight * WORKOUT_REPNUM) as volume, to_char(workout_date) as dates, workout_cat1 as category
+    #             from workout_db
+    #             where user_id = '{session['user_id']}'
+    #             group by workout_date, workout_cat1
+    #             order by workout_date """
+    # select to_char(workout_date) as workout_date, workout_cat1, workout_cat3, workout_weight, workout_setnum, workout_repnum
+    # from workout_db
+    # where user_id = '{session['user_id']}'
+    # order by workout_date
 
-    df = pd.read_sql(sql,con=conn)
-    print(df)
-    # result = md.getData(session['user_id'])
-    data = df.to_json(orient='columns')
+    sql = f"""
+
+    select to_char(workout_date) as workout_date, workout_cat1, workout_cat3, sum(workout_weight * workout_repnum) as volume
+    from workout_db
+    where user_id = '{session['user_id']}'
+    group by workout_date, workout_cat1, workout_cat3
+    order by workout_date
     
+     """
+    df = pd.read_sql(sql,con=conn)
+    # result = md.getData(session['user_id'],workout_cat3)
+    data = df.to_json(orient='columns')
     return render_template('/dashboard.html', data=data)
 
-
+@app.route('/cat1', methods=['GET'])
+def choose_cat1():
+    workout_cat = request.args.get('WORKOUT_CAT3')
+    print(workout_cat)
+    return workout_cat
 
 
 if __name__ == '__main__':
