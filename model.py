@@ -1,6 +1,6 @@
 import cx_Oracle as oracle
 orcl_dsn = oracle.makedsn(host='localhost', port=1521, sid='xe') #192.168.2.131
-conn = oracle.connect(dsn = orcl_dsn, user='jyh', password='123456')
+conn = oracle.connect(dsn = orcl_dsn, user='jyhoon94', password='123456')
 
 
 class Record:
@@ -57,14 +57,13 @@ class Record:
         result = cursor.fetchone()
         return result
     
-    def getData(self, user_id, workout_cat3):
+    def getData(self, user_id, workout_cat1):
         cursor = conn.cursor()
-        sql = """select sum(workout_weight * WORKOUT_REPNUM) as volume, to_char(workout_date) as dates, workout_cat1, workout_cat3
-                from workout_db
-                where workout_user =: user_id and workout_cat3 =: workout_cat3
-                group by workout_date, workout_cat1
-                order by workout_date """
-        cursor.execute(sql,(user_id, workout_cat3))
+        sql = """
+            select * from workout_db
+            where user_id=:user_id and workout_cat1=:workout_cat1
+        """
+        cursor.execute(sql,{"user_id":user_id, "workout_cat1": workout_cat1})
         result = cursor.fetchall()
         return result
         

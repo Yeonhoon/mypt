@@ -21,11 +21,36 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
+   
+    <div id="chartdiv"></div>
+        <select id='selection' onchange="selection(this)">
+            <option id='push' value="push">밀기</option>
+            <option value="pull">당기기</option>
+            <option value="legs">하체</option>
+            <option value="core">코어</option>
+        </select>
+
     <script>
+        function selection(){
+            const select = $('#selection').val();
         
+        $.ajax({
+            url:'/cat1',
+            method:'POST',
+            data:{
+                'WORKOUT_CAT1': select
+            },
+            success: function(data){
+                console.log(data.result)
+            }
+
+        });
+    }
+    </script>
+     <script>
         var data = {{data|safe}};
+        console.log(data);
         var record_list = [];
-        
         var resArr=[];
         am4core.ready(function(){
         am4core.useTheme(am4themes_animated);
@@ -99,31 +124,7 @@
                 
                 
     </script>
-    <div id="chartdiv"></div>
-        <select id='selection' onchange="selection(this)">
-            <option id='push' value="밀기">밀기</option>
-            <option value="당기기">당기기</option>
-            <option value="하체">하체</option>
-        </select>
 
-    <script>
-        function selection(){
-            const select = $('#selection').val();
-            console.log(select);
-        };
-        $.ajax({
-            url:'/cat1',
-            method:'GET',
-            data:{
-                'WORKOUT_CAT3': select 
-            },
-            success: function(data){
-                location.href='/cat1';
-            }
-
-        });
-
-    </script>
     <div id='piechart'></div>
 
 

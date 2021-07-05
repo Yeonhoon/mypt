@@ -1,5 +1,6 @@
 from re import T, template
 from flask import Flask, jsonify, render_template, request, session, redirect
+from flask.helpers import url_for
 import pandas as pd
 import os
 from flask_login import LoginManager
@@ -63,38 +64,22 @@ def save_record():
     return redirect('/diary')
 
 @app.route('/dashboard')
-def to_dash():
-    conn = model.conn
-    # sql = f"""select sum(workout_weight * WORKOUT_REPNUM) as volume, to_char(workout_date) as dates, workout_cat1 as category
-    #             from workout_db
-    #             where user_id = '{session['user_id']}'
-    #             group by workout_date, workout_cat1
-    #             order by workout_date """
-    # select to_char(workout_date) as workout_date, workout_cat1, workout_cat3, workout_weight, workout_setnum, workout_repnum
-    # from workout_db
-    # where user_id = '{session['user_id']}'
-    # order by workout_date
-
-    sql = f"""
-
-    select to_char(workout_date) as workout_date, workout_cat1, workout_cat3, sum(workout_weight * workout_repnum) as volume
-    from workout_db
-    where user_id = '{session['user_id']}'
-    group by workout_date, workout_cat1, workout_cat3
-    order by workout_date
-    
-     """
-    df = pd.read_sql(sql,con=conn)
-    # result = md.getData(session['user_id'],workout_cat3)
-    data = df.to_json(orient='columns')
+def to_dash(data):
     return render_template('/dashboard.html', data=data)
 
-@app.route('/cat1', methods=['GET'])
+@app.route('/cat1', methods=['POST'])
 def choose_cat1():
-    workout_cat = request.args.get('WORKOUT_CAT3')
+    conn = model.conn
+    workout_cat = request.form['WORKOUT_CAT1']
     print(workout_cat)
-    return workout_cat
-
+    sql = f"""
+        select * from workout_db
+        where user_id= '{session['user_id']}' and workout_cat1 = '{workout_cat}'
+        order by workout_date
+    """
+    df = pd.read_sql(sql, con = conn)
+    result = df.to_json(orient='columns')
+    return redirect(url_for('/dashboard.html'), data=result)
 
 if __name__ == '__main__':
     app.run(debug=True)
