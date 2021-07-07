@@ -106,7 +106,9 @@
                             <div class="d-grid"><button class="btn btn-primary btn-xl" onclick="save()">Submit</button></div>
                         </form>
                         <br>
+                        {% if session.user_id %}
                         <div class="d-grid"><a class="btn btn-success btn-xl" href="/dashboard">DashBoard</a></div>
+                        {% endif %}
                     </div>
                 </div>
                 <div class="row gx-4 gx-lg-5 justify-content-center">
@@ -142,7 +144,7 @@
                         'etc': etc
                     },
                     success : function(data){
-                        confirm('운동 일지 기록 완료!')
+                        alert('운동 일지 기록 완료!')
                         location.href='/diary'
                     }
                 })

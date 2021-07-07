@@ -1,6 +1,6 @@
 import cx_Oracle as oracle
 orcl_dsn = oracle.makedsn(host='localhost', port=1521, sid='xe') #192.168.2.131
-conn = oracle.connect(dsn = orcl_dsn, user='jyhoon94', password='123456')
+conn = oracle.connect(dsn = orcl_dsn, user='jyh', password='123456')
 
 
 class Record:
@@ -57,13 +57,30 @@ class Record:
         result = cursor.fetchone()
         return result
     
-    def getData(self, user_id, workout_cat1):
+    def getAll(self, user_id):
+        cursor = conn.cursor()
+        sql="""
+            select to_char(workout_date) as dates, workout_cat1, sum(workout_repNum * workout_weight) as volume
+            from workout_db
+            where user_id=:user_id
+            group by workout_cat1, workout_date
+            order by workout_date
+        """
+        cursor.execute(sql,{'user_id':user_id})
+        result = cursor.fetchall()
+        return result
+
+    def getCategory(self, user_id, workout_cat1):
         cursor = conn.cursor()
         sql = """
-            select * from workout_db
-            where user_id=:user_id and workout_cat1=:workout_cat1
+        select to_char(workout_date) as dates,workout_cat1, sum(workout_repNum * workout_weight) as volume
+        from workout_db
+        where user_id=:user_id and workout_cat1 =:workout_cat1
+        group by workout_cat1, workout_date
+        order by workout_date
         """
         cursor.execute(sql,{"user_id":user_id, "workout_cat1": workout_cat1})
         result = cursor.fetchall()
         return result
+        
         

@@ -1,5 +1,5 @@
 from re import T, template
-from flask import Flask, jsonify, render_template, request, session, redirect
+from flask import Flask, jsonify, render_template, request, session, redirect, make_response
 from flask.helpers import url_for
 import pandas as pd
 import os
@@ -63,23 +63,40 @@ def save_record():
     md.save(user_id, date, big, middle, small, setNum, weight, repNum, etc)
     return redirect('/diary')
 
+# 대시보드 페이지로 가기
 @app.route('/dashboard')
-def to_dash(data):
-    return render_template('/dashboard.html', data=data)
+def to_dash():
+    conn = model.conn
+    temp = md.getAll(session['user_id'])
+    df = pd.DataFrame(temp, columns = ['dates','workout_cat1','volume'])
+    data = df.to_json(orient='columns')
 
-@app.route('/cat1', methods=['POST'])
+    return render_template('dashboard.html', data=data)
+
+# 카테고리별 데이터 가져오기
+@app.route('/cat1', methods=['GET'])
 def choose_cat1():
     conn = model.conn
-    workout_cat = request.form['WORKOUT_CAT1']
-    print(workout_cat)
+    workout_cat = request.args['WORKOUT_CAT1']
     sql = f"""
         select * from workout_db
         where user_id= '{session['user_id']}' and workout_cat1 = '{workout_cat}'
         order by workout_date
     """
     df = pd.read_sql(sql, con = conn)
-    result = df.to_json(orient='columns')
-    return redirect(url_for('/dashboard.html'), data=result)
+    data = df.to_json(orient='columns')
+   
+    return render_template('dashboard.html', data=data)
+
+@app.route('/dashboard/')
+def dashboard_data():
+    conn = model.conn
+    user_id = session['user_id']
+    workout_cat = request.args.get('workout_cat')
+    df = md.getCategory(user_id, workout_cat)
+    print(df)
+    return jsonify(df)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
