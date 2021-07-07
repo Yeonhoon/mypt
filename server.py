@@ -74,28 +74,22 @@ def to_dash():
     return render_template('dashboard.html', data=data)
 
 # 카테고리별 데이터 가져오기
-@app.route('/cat1', methods=['GET'])
-def choose_cat1():
-    conn = model.conn
-    workout_cat = request.args['WORKOUT_CAT1']
-    sql = f"""
-        select * from workout_db
-        where user_id= '{session['user_id']}' and workout_cat1 = '{workout_cat}'
-        order by workout_date
-    """
-    df = pd.read_sql(sql, con = conn)
-    data = df.to_json(orient='columns')
-   
-    return render_template('dashboard.html', data=data)
-
 @app.route('/dashboard/')
 def dashboard_data():
     conn = model.conn
     user_id = session['user_id']
     workout_cat = request.args.get('workout_cat')
     df = md.getCategory(user_id, workout_cat)
-    print(df)
-    return jsonify(df)
+    headers = ['dates','workout_cat1','volume']
+    lst = []
+    for i in df:
+        temp = {}
+        temp[headers[0]]=i[0]
+        temp[headers[1]]=i[1]
+        temp[headers[2]]=i[2]
+        lst.append(temp)
+    print(lst)
+    return jsonify(lst)
 
 
 if __name__ == '__main__':

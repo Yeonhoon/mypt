@@ -23,7 +23,7 @@
 <body>
    
     
-    <div id="chartdiv"><h2>onclick 방식</h2></div>
+    <div id="chartdiv"></div>
     <select id='selection2'>
         <option value="push" >밀기</option>
         <option value="pull">당기기</option>
@@ -42,26 +42,14 @@
                     url: "{{url_for('dashboard_data')}}",
                     data: {'workout_cat': select2},
                     success: function(data){
-                        var data = data;
-                        console.log(data);
+                        var data2 = data;
+                        console.log(data2);
                     }
                 });
                 
             })
         });
 
-        function clickCat() {
-            const select2 = $('#selection2').val();
-
-            $.ajax({
-                type:'GET',
-                url: "{{url_for('dashboard_data')}}",
-                data: {'workout_cat': select2},
-                success: function(data){
-                    
-                }
-            });
-        };
         var data = {{data|safe}};
         var record_list = [];
 
@@ -71,6 +59,7 @@
         am4core.ready(function(){
         am4core.useTheme(am4themes_animated);
         var chart = am4core.create("chartdiv", am4charts.XYChart);
+        
         const distinct = (value, index, self) => {
             return self.indexOf(value) === index;
         };
@@ -143,8 +132,15 @@
                 
     </script>
 
-    <div id='piechart'></div>
-
+    <div id='chartdiv2'></div>
+    <script>
+        am4core.ready(function(){
+            am4core.useTheme(am4themes_animated);
+            var chart = am4core.create("chartdiv2", am4charts.XYChart);
+            chart.data = data2;
+            // 그래프 그리기 위한 형태로 다시 만들기.
+        });
+    </script>
 
 </body>
 </html>
