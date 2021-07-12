@@ -4,12 +4,14 @@ from flask.helpers import url_for
 import pandas as pd
 import os
 from flask_login import LoginManager
+from flask_cors import CORS
 import json
 import model
 
 md = model.Record()
 
 app = Flask(__name__)
+CORS(app)
 app.secret_key = os.urandom(24)
 @app.route('/')
 def main():
@@ -80,17 +82,21 @@ def dashboard_data():
     user_id = session['user_id']
     workout_cat = request.args.get('workout_cat')
     df = md.getCategory(user_id, workout_cat)
+    print(df)
     headers = ['dates','workout_cat1','volume']
     lst = []
     for i in df:
         temp = {}
         temp[headers[0]]=i[0]
-        temp[headers[1]]=i[1]
-        temp[headers[2]]=i[2]
+        temp[i[1]]=i[2]
         lst.append(temp)
     print(lst)
     return jsonify(lst)
 
+
+@app.route('/vuetest')
+def viewtest():
+    return render_template('test.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
